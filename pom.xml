@@ -7,12 +7,8 @@
 	<groupId>br.feevale.bytechat</groupId>
 	<artifactId>bytechat-client</artifactId>
 	
-	<packaging>pom</packaging>
+	<packaging>jar</packaging>
 	<url>http://maven.apache.org</url>
-
-	<modules>
-		<module>../bytechat-core</module>
-	</modules>
 
 	<build>
 		<plugins>
@@ -38,6 +34,12 @@
 	</build>
 
 	<dependencies>
+		<dependency>
+			<groupId>br.feevale.bytechat</groupId>
+			<artifactId>bytechat-core</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+		
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
