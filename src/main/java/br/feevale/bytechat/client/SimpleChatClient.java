@@ -4,14 +4,16 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
+import br.feevale.bytechat.builder.AckBuilder;
+import br.feevale.bytechat.builder.MessageBuilder;
 import br.feevale.bytechat.config.Configuration;
 import br.feevale.bytechat.exception.ConnectionException;
+import br.feevale.bytechat.listener.SessionListener;
+import br.feevale.bytechat.packet.Ack;
+import br.feevale.bytechat.packet.Message;
 import br.feevale.bytechat.packet.Packet;
-import br.feevale.bytechat.packet.builder.MessageBuilder;
-import br.feevale.bytechat.packet.impl.Message;
-import br.feevale.bytechat.server.connector.Connection;
-import br.feevale.bytechat.server.connector.SocketConnection;
-import br.feevale.bytechat.server.listener.SessionListener;
+import br.feevale.bytechat.protocol.Connection;
+import br.feevale.bytechat.protocol.SocketConnection;
 import br.feevale.bytechat.util.Session;
 import br.feevale.bytechat.util.User;
 
@@ -36,6 +38,8 @@ public class SimpleChatClient {
 			Socket socket = new Socket(configuration.getHost(), configuration.getPort());
 			
 			Connection connection = new SocketConnection(socket);
+			connection.send(AckBuilder.create().user(user).getAck());
+			
 			session = new Session(user, connection);
 			session.addListener(new BlablaListener());
 			session.start();
@@ -57,7 +61,16 @@ public class SimpleChatClient {
 			if (packet instanceof Message) {
 				Message message = (Message) packet;
 				System.out.println(String.format("%s: %s", message.getOriginator().getName(), message.getMessage()));
+			} else if (packet instanceof Ack) {
+				Ack ack = (Ack) packet;
+				System.out.println(String.format("%s acabou de entrar", ack.getUser().getName()));
 			}
+		}
+
+		@Override
+		public void sessionEnded(Session session) {
+			// TODO Auto-generated method stub
+			
 		}
 		
 	}
