@@ -6,6 +6,7 @@ import java.net.Socket;
 
 import br.feevale.bytechat.builder.AckBuilder;
 import br.feevale.bytechat.builder.MessageBuilder;
+import br.feevale.bytechat.client.console.Console;
 import br.feevale.bytechat.config.Configuration;
 import br.feevale.bytechat.exception.ConnectionException;
 import br.feevale.bytechat.listener.SessionListener;
@@ -29,11 +30,10 @@ public class SimpleChatClient {
 	
 	public void start() throws Exception {
 		if (session == null) {
-			System.out.println("Qual o seu nome?");
-			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+			String name = Console.ask("Qual seu nome?", "sim", "bla");
 			
 			User user = new User();
-			user.setName(reader.readLine());
+			user.setName(name);
 			
 			Socket socket = new Socket(configuration.getHost(), configuration.getPort());
 			

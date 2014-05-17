@@ -21,17 +21,39 @@
 					<target>1.7</target>
 				</configuration>
 			</plugin>
-			
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<version>${maven.exec.version}</version>
-				<configuration>
-					<mainClass>br.feevale.bytechat.App</mainClass>
-				</configuration>
-			</plugin>
 		</plugins>
 	</build>
+	
+	<profiles>
+		<profile>
+			<id>console</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<version>${maven.exec.version}</version>
+						
+						<executions>
+							<execution>
+								<goals>
+									<goal>java</goal>
+								</goals>
+							</execution>
+						</executions>
+						
+						<configuration>
+							<mainClass>br.feevale.bytechat.client.bootstrap.DefaultClientBootstrap</mainClass>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 	<dependencies>
 		<dependency>
@@ -41,15 +63,9 @@
 		</dependency>
 		
 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-			<version>${spring.version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>javax.inject</groupId>
-			<artifactId>javax.inject</artifactId>
-			<version>${javax.inject.version}</version>
+			<groupId>org.fusesource.jansi</groupId>
+			<artifactId>jansi</artifactId>
+			<version>${jansi.version}</version>
 		</dependency>
 		
 		<dependency>
@@ -61,8 +77,7 @@
  	</dependencies>
 
 	<properties>
-		<spring.version>4.0.3.RELEASE</spring.version>
-		<javax.inject.version>1</javax.inject.version>
+		<jansi.version>1.11</jansi.version>
 	
 		<junit.version>4.11</junit.version>
 	
