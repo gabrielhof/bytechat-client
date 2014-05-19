@@ -15,32 +15,48 @@ public class Console {
 	private static PrintStream out = new ColorFullPrintStream(AnsiConsole.out);
 	
 	public static void info(String message) {
-		out.println(String.format("<info>%s</info>", message));
+		println(String.format("<info>%s</info>", message));
 	}
 	
 	public static void notice(String message) {
-		out.println(String.format("<notice>%s</notice>", message));
+		println(String.format("<notice>%s</notice>", message));
 	}
 	
 	public static void success(String message) {
-		out.println(String.format("<success>%s</success>", message));
+		println(String.format("<success>%s</success>", message));
 	}
 	
 	public static void warn(String message) {
-		out.println(String.format("<warn>%s</warn>", message));
+		println(String.format("<warn>%s</warn>", message));
 	}
 	
 	public static void error(String message) {
-		out.println(String.format("<error>%s</error>", message));
+		println(String.format("<error>%s</error>", message));
 	}
 	
 	public static void question(String message) {
-		out.println(String.format("<question>%s</question>", message));
+		println(String.format("<question>%s</question>", message));
 	}
 
+	public static void print(String message) {
+		out.print(message);
+	}
+	
+	public static void println() {
+		out.println();
+	}
+	
+	public static void println(String message) {
+		out.println(message);
+	}
+	
 	public static boolean askBoolean(String question) {
 		String answer = ask(question, new BooleanValidator()).trim().toLowerCase();
 		return Arrays.asList("true", "sim", "yes").contains(answer);
+	}
+	
+	public static String ask(String question) {
+		return ask(question, (ConsoleResponseValidator) null);
 	}
 	
 	public static String ask(String question, String... availableAnswers) {

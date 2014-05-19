@@ -1,102 +1,107 @@
 package br.feevale.bytechat.client;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.Socket;
-
-import br.feevale.bytechat.builder.AckBuilder;
-import br.feevale.bytechat.builder.MessageBuilder;
+import br.feevale.bytechat.builder.UnbindBuilder;
 import br.feevale.bytechat.client.console.Console;
+import br.feevale.bytechat.client.factory.ClientSessionFactory;
+import br.feevale.bytechat.client.listener.ConsoleSessionListener;
 import br.feevale.bytechat.config.Configuration;
-import br.feevale.bytechat.exception.ConnectionException;
-import br.feevale.bytechat.listener.SessionListener;
-import br.feevale.bytechat.packet.Ack;
-import br.feevale.bytechat.packet.Message;
-import br.feevale.bytechat.packet.Packet;
-import br.feevale.bytechat.protocol.Connection;
-import br.feevale.bytechat.protocol.SocketConnection;
+import br.feevale.bytechat.exception.ClientAlreadyStartedException;
+import br.feevale.bytechat.exception.ClientException;
+import br.feevale.bytechat.exception.ClientNotStartedException;
+import br.feevale.bytechat.exception.PacketException;
 import br.feevale.bytechat.util.Session;
 import br.feevale.bytechat.util.User;
 
-public class SimpleChatClient {
+public class SimpleChatClient implements ChatClient {
 
+	private static final String ALREADY_STARTED_MESSAGE = "O cliente ja esta connectado em %s:%d";
+	
+	private ClientSessionFactory sessionFactory;
+	
 	private Configuration configuration;
+	private User user;
 
 	private Session session;
 	
+	public SimpleChatClient() {
+		this(null);
+	}
+	
 	public SimpleChatClient(Configuration configuration) {
+		this.configuration = configuration;
+		this.sessionFactory = ClientSessionFactory.getDefault();
+	}
+	
+	@Override
+	public void setConfiguration(Configuration configuration) throws ClientException {
+		if (isRunning()) {
+			throw new ClientAlreadyStartedException(String.format(ALREADY_STARTED_MESSAGE, configuration.getHost(), configuration.getPort()));
+		}
+		
 		this.configuration = configuration;
 	}
 	
-	public void start() throws Exception {
-		if (session == null) {
-			String name = Console.ask("Qual seu nome?", "sim", "bla");
-			
-			User user = new User();
-			user.setName(name);
-			
-			Socket socket = new Socket(configuration.getHost(), configuration.getPort());
-			
-			Connection connection = new SocketConnection(socket);
-			connection.send(AckBuilder.create().user(user).getAck());
-			
-			session = new Session(user, connection);
-			session.addListener(new BlablaListener());
+	@Override
+	public Configuration getConfiguration() {
+		return configuration;
+	}
+	
+	public void setUser(User user) {
+		this.user = user;
+	}
+	
+	public User getUser() {
+		return user;
+	}
+	
+	@Override
+	public Session getSession() throws ClientException {
+		if (!isRunning()) {
+			throw new ClientNotStartedException("O cliente ainda não foi iniciado.");
+		}
+		
+		return session;
+	}
+	
+	@Override
+	public void start() throws ClientException {
+		if (configuration == null) {
+			throw new NullPointerException("A configuracao não pode ser nula");
+		}
+		
+		if (isRunning()) {
+			throw new ClientAlreadyStartedException(String.format(ALREADY_STARTED_MESSAGE, configuration.getHost(), configuration.getPort()));
+		}
+		
+		try {
+			session = sessionFactory.create(configuration, user);
+			session.addListener(new ConsoleSessionListener());
 			session.start();
-			
-			Thread thread = new Thread(new ConsoleReader());
-			thread.start();
+		} catch (ClientException e) {
+			Console.error(String.format("Não foi possível conectar no endereço %s:%d", configuration.getHost(), configuration.getPort()));
+			throw e;
 		}
 	}
 	
-	public void stop() throws ConnectionException {
+	@Override
+	public void stop() throws ClientException {
+		if (session == null) {
+			throw new ClientNotStartedException("O cliente ainda nao foi iniciado");
+		}
+		
+		if (!session.getConnection().isClosed()) {
+			try {
+				session.send(UnbindBuilder.create().user(session.getUser()).getUnbind());
+			} catch (PacketException e) {}
+		}
+		
 		session.stop();
 		session = null;
 	}
 	
-	class BlablaListener implements SessionListener {
-
-		@Override
-		public void packetReceived(Session session, Packet packet) {
-			if (packet instanceof Message) {
-				Message message = (Message) packet;
-				System.out.println(String.format("%s: %s", message.getOriginator().getName(), message.getMessage()));
-			} else if (packet instanceof Ack) {
-				Ack ack = (Ack) packet;
-				System.out.println(String.format("%s acabou de entrar", ack.getUser().getName()));
-			}
-		}
-
-		@Override
-		public void sessionEnded(Session session) {
-			// TODO Auto-generated method stub
-			
-		}
-		
+	@Override
+	public boolean isRunning() {
+		return session != null;
 	}
-	
-	class ConsoleReader implements Runnable {
 
-		@Override
-		public void run() {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-			
-			while (session != null) {
-				try {
-					MessageBuilder builder = MessageBuilder.create();
-					builder.message(reader.readLine());
-					builder.originator(session.getUser());
-					
-					session.send(builder.getMessage());
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-			}
-			
-		}
-		
-	}
-	
 }

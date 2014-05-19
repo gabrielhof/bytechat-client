@@ -50,6 +50,19 @@
 							<mainClass>br.feevale.bytechat.client.bootstrap.DefaultClientBootstrap</mainClass>
 						</configuration>
 					</plugin>
+					<plugin>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<configuration>
+							<archive>
+								<manifest>
+									<mainClass>br.feevale.bytechat.client.bootstrap.DefaultClientBootstrap</mainClass>
+								</manifest>
+							</archive>
+							<descriptorRefs>
+								<descriptorRef>jar-with-dependencies</descriptorRef>
+							</descriptorRefs>
+						</configuration>
+					</plugin>
 				</plugins>
 			</build>
 		</profile>
@@ -59,7 +72,7 @@
 		<dependency>
 			<groupId>br.feevale.bytechat</groupId>
 			<artifactId>bytechat-core</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 		
 		<dependency>
@@ -78,7 +91,6 @@
 
 	<properties>
 		<jansi.version>1.11</jansi.version>
-	
 		<junit.version>4.11</junit.version>
 	
 		<maven.compiler.version>3.1</maven.compiler.version>
