@@ -5,6 +5,7 @@ import br.feevale.bytechat.client.console.Console;
 import br.feevale.bytechat.client.factory.ClientSessionFactory;
 import br.feevale.bytechat.client.listener.ConsoleSessionListener;
 import br.feevale.bytechat.config.Configuration;
+import br.feevale.bytechat.exception.PacketFailedException;
 import br.feevale.bytechat.exception.ClientAlreadyStartedException;
 import br.feevale.bytechat.exception.ClientException;
 import br.feevale.bytechat.exception.ClientNotStartedException;
@@ -69,6 +70,10 @@ public class SimpleChatClient implements ChatClient {
 			throw new NullPointerException("A configuracao não pode ser nula");
 		}
 		
+		if (user == null) {
+			throw new NullPointerException("O usuario não pode ser nulo.");
+		}
+		
 		if (isRunning()) {
 			throw new ClientAlreadyStartedException(String.format(ALREADY_STARTED_MESSAGE, configuration.getHost(), configuration.getPort()));
 		}
@@ -77,6 +82,8 @@ public class SimpleChatClient implements ChatClient {
 			session = sessionFactory.create(configuration, user);
 			session.addListener(new ConsoleSessionListener());
 			session.start();
+		} catch (PacketFailedException e) {
+			throw e;
 		} catch (ClientException e) {
 			Console.error(String.format("Não foi possível conectar no endereço %s:%d", configuration.getHost(), configuration.getPort()));
 			throw e;

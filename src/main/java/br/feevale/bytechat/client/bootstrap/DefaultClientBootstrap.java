@@ -5,7 +5,10 @@ import br.feevale.bytechat.client.SimpleChatClient;
 import br.feevale.bytechat.client.console.Console;
 import br.feevale.bytechat.client.console.ConsoleObserver;
 import br.feevale.bytechat.config.Configuration;
+import br.feevale.bytechat.exception.PacketFailedException;
 import br.feevale.bytechat.exception.ClientException;
+import br.feevale.bytechat.packet.Fail;
+import br.feevale.bytechat.packet.FailType;
 import br.feevale.bytechat.util.User;
 
 public class DefaultClientBootstrap {
@@ -23,10 +26,10 @@ public class DefaultClientBootstrap {
 	}
 	
 	void init() {
-		String name = Console.ask("Qual seu nome?");
+		String name = Console.ask("Qual seu nome? (espaços serão removidos)");
 		
 		User user = new User();
-		user.setName(name);
+		user.setName(name.replaceAll(" ", ""));
 		
 		chatClient.setUser(user);
 		
@@ -41,11 +44,24 @@ public class DefaultClientBootstrap {
 	private void startChat() {
 		try {
 			chatClient.start();
+		} catch (PacketFailedException e) { 
+			treatFail(e.getFail());
 		} catch (ClientException e) {
 			e.printStackTrace();
 		}
 	}
 	
+	private void treatFail(Fail fail) {
+		if (fail.getFailType() == FailType.USERNAME_TAKEN) {
+			Console.println();
+			Console.error(String.format("O usuário %s já esta sendo utilizado.", chatClient.getUser().getName()));
+			String username = Console.ask("Por favor, escolha outro nome (espaços serão removidos):");
+			
+			chatClient.getUser().setName(username.replaceAll(" ", ""));
+			startChat();
+		}
+	}
+
 	private void welcomeMessage() {
 		Console.println();
 		Console.println(String.format("Olá <success>%s</success> :)", chatClient.getUser().getName()));
