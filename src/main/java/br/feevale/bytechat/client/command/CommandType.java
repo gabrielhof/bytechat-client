@@ -7,6 +7,7 @@ public enum CommandType {
 	MESSAGE(new MessageCommand()),
 	HELP(new HelpCommand()),
 	USER_LIST(new UserListCommand()),
+	FILE(new FileCommand())
 	;
 	
 	private Command command;
