@@ -14,6 +14,7 @@ import br.feevale.bytechat.packet.File;
 import br.feevale.bytechat.packet.Message;
 import br.feevale.bytechat.packet.Unbind;
 import br.feevale.bytechat.packet.UserList;
+import br.feevale.bytechat.util.FileUtils;
 import br.feevale.bytechat.util.Session;
 import br.feevale.bytechat.util.User;
 
@@ -85,7 +86,7 @@ public class ConsoleSessionListener extends AbstractSessionListener {
 			if (file.getPart() == file.getTotalParts()) {
 				files.remove(file.getFileId());
 				
-				f = moveFileToUserDir(f, file.getName());
+				f = FileUtils.moveToUserDir(f, file.getName());
 				Console.println(String.format("Arquivo <info>%s</info> recebido e salvo em <success>%s</success>", file.getName(), f.getAbsolutePath()));
 			} else {
 				int percent = ((file.getPart() * 100) / file.getTotalParts());
@@ -93,41 +94,6 @@ public class ConsoleSessionListener extends AbstractSessionListener {
 			}
 		} catch (IOException e) {
 		}
-	}
-	
-	private java.io.File moveFileToUserDir(java.io.File file, String prettyName) {
-		String userDir = System.getProperty("user.home");
-		
-		if (!userDir.endsWith(java.io.File.separator)) {
-			userDir += java.io.File.separator;
-		}
-		
-		java.io.File destination = null;
-		
-		String[] possibilities = new String[] {"Downloads", "downloads", ""};
-		for (String possibility : possibilities) {
-			destination = new java.io.File(userDir + possibility);
-			if (destination.exists() && destination.isDirectory()) {
-				break;
-			}
-			
-			destination = null;
-		}
-		
-		if (destination != null) {
-			destination = new java.io.File(destination.getAbsolutePath() + java.io.File.separator + prettyName);
-			if (file.exists()) {
-				file.delete();
-			}
-			
-			if (!file.renameTo(destination)) {
-				destination = file;
-			}
-		} else {
-			destination = file;
-		}
-		
-		return destination;
 	}
 
 }
