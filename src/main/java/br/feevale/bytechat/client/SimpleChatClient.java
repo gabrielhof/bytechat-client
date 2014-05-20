@@ -3,13 +3,12 @@ package br.feevale.bytechat.client;
 import br.feevale.bytechat.builder.UnbindBuilder;
 import br.feevale.bytechat.client.console.Console;
 import br.feevale.bytechat.client.factory.ClientSessionFactory;
-import br.feevale.bytechat.client.listener.ConsoleSessionListener;
 import br.feevale.bytechat.config.Configuration;
-import br.feevale.bytechat.exception.PacketFailedException;
 import br.feevale.bytechat.exception.ClientAlreadyStartedException;
 import br.feevale.bytechat.exception.ClientException;
 import br.feevale.bytechat.exception.ClientNotStartedException;
 import br.feevale.bytechat.exception.PacketException;
+import br.feevale.bytechat.exception.PacketFailedException;
 import br.feevale.bytechat.util.Session;
 import br.feevale.bytechat.util.User;
 
@@ -80,7 +79,6 @@ public class SimpleChatClient implements ChatClient {
 		
 		try {
 			session = sessionFactory.create(configuration, user);
-			session.addListener(new ConsoleSessionListener());
 			session.start();
 		} catch (PacketFailedException e) {
 			throw e;

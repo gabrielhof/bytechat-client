@@ -4,6 +4,7 @@ import br.feevale.bytechat.client.ChatClient;
 import br.feevale.bytechat.client.SimpleChatClient;
 import br.feevale.bytechat.client.console.Console;
 import br.feevale.bytechat.client.console.ConsoleObserver;
+import br.feevale.bytechat.client.listener.ConsoleSessionListener;
 import br.feevale.bytechat.config.Configuration;
 import br.feevale.bytechat.exception.PacketFailedException;
 import br.feevale.bytechat.exception.ClientException;
@@ -11,14 +12,14 @@ import br.feevale.bytechat.packet.Fail;
 import br.feevale.bytechat.packet.FailType;
 import br.feevale.bytechat.util.User;
 
-public class DefaultClientBootstrap {
+public class ConsoleClientBootstrap {
 	
 	private Configuration configuration;
 	private ChatClient chatClient;
 	
 	private ConsoleObserver consoleObserver;
 	
-	protected DefaultClientBootstrap() {
+	protected ConsoleClientBootstrap() {
 		configuration = createConfig();
 		chatClient = new SimpleChatClient(configuration);
 		
@@ -44,6 +45,7 @@ public class DefaultClientBootstrap {
 	private void startChat() {
 		try {
 			chatClient.start();
+			chatClient.getSession().addListener(new ConsoleSessionListener());
 		} catch (PacketFailedException e) { 
 			treatFail(e.getFail());
 		} catch (ClientException e) {
@@ -82,7 +84,7 @@ public class DefaultClientBootstrap {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		new DefaultClientBootstrap().init();
+		new ConsoleClientBootstrap().init();
 	}
 	
 	class UnbindAndShutdown extends Thread {
