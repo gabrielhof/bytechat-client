@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 
 import br.feevale.bytechat.client.ChatClient;
 import br.feevale.bytechat.client.command.Command;
+import br.feevale.bytechat.client.exception.CommandException;
 import br.feevale.bytechat.client.factory.CommandFactory;
 import br.feevale.bytechat.exception.ClientException;
 import br.feevale.bytechat.util.Session;
@@ -52,6 +53,8 @@ public class ConsoleObserver {
 					if (command != null) {
 						command.execute(session, line);
 					}
+				} catch (CommandException e) {
+					Console.error(e.getMessage());
 				} catch (Exception e) {
 					if (session.getConnection().isClosed()) {
 						stop();

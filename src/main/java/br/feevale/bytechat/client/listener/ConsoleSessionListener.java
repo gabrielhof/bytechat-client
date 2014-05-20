@@ -23,19 +23,23 @@ public class ConsoleSessionListener extends AbstractSessionListener {
 	
 	@Override
 	public void bindReceived(Session session, Bind bind) {
-		Console.println(String.format("<warn>@</warn><success>%s</success> acabou de entrar.", bind.getUser().getName()));
+		Console.println(String.format("@<success>%s</success> acabou de entrar.", bind.getUser().getName()));
 		Console.println();
 	}
 
 	@Override
 	public void unbindReceived(Session source, Unbind unbind) {
-		Console.println(String.format("<warn>@</warn><success>%s</success> acabou de sair.", unbind.getUser().getName()));
+		Console.println(String.format("@<success>%s</success> acabou de sair.", unbind.getUser().getName()));
 		Console.println();
 	}
 	
 	@Override
 	public void messageReceived(Session session, Message message) {
-		Console.println(String.format("<warn>@</warn><notice>%s</notice>: <warn>%s</warn>", message.getOriginator().getName(), message.getMessage()));
+		if (message.isPrivate()) {
+			Console.print("<info>Mensagem privade de</info> ");
+		}
+		
+		Console.println(String.format("@<notice>%s</notice>: <warn>%s</warn>", message.getOriginator().getName(), message.getMessage()));
 	}
 	
 	@Override
@@ -46,7 +50,7 @@ public class ConsoleSessionListener extends AbstractSessionListener {
 		
 		if (users != null && users.size() > 0) {
 			if (users.size() == 1) {
-				Console.println(String.format("Somente você e o usuário <warn>@</warn><success>%s</success> estão logados!", users.get(0).getName()));
+				Console.println(String.format("Somente você e o usuário @<success>%s</success> estão logados!", users.get(0).getName()));
 			} else {
 				Console.println("Esses são os usuários logados:");
 				
@@ -83,6 +87,9 @@ public class ConsoleSessionListener extends AbstractSessionListener {
 				
 				f = moveFileToUserDir(f, file.getName());
 				Console.println(String.format("Arquivo <info>%s</info> recebido e salvo em <success>%s</success>", file.getName(), f.getAbsolutePath()));
+			} else {
+				int percent = ((file.getPart() * 100) / file.getTotalParts());
+				Console.println(String.format("<warn>Recebendo arquivo</warn> <info>%s</info> (<success>%d%s</success>)", file.getName(), percent, "%"));
 			}
 		} catch (IOException e) {
 		}
@@ -108,12 +115,14 @@ public class ConsoleSessionListener extends AbstractSessionListener {
 		}
 		
 		if (destination != null) {
-			destination = new java.io.File(destination.getAbsolutePath() + java.io.File.separator + file.getName());
+			destination = new java.io.File(destination.getAbsolutePath() + java.io.File.separator + prettyName);
 			if (file.exists()) {
 				file.delete();
 			}
 			
-			file.renameTo(destination);
+			if (!file.renameTo(destination)) {
+				destination = file;
+			}
 		} else {
 			destination = file;
 		}
