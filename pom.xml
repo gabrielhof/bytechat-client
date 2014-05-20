@@ -76,6 +76,12 @@
 		</dependency>
 		
 		<dependency>
+			<groupId>de.sciss</groupId>
+			<artifactId>weblaf</artifactId>
+			<version>${weblaf.version}</version>
+		</dependency>
+		
+		<dependency>
 			<groupId>org.fusesource.jansi</groupId>
 			<artifactId>jansi</artifactId>
 			<version>${jansi.version}</version>
@@ -90,6 +96,8 @@
  	</dependencies>
 
 	<properties>
+		<weblaf.version>1.27</weblaf.version>
+	
 		<jansi.version>1.11</jansi.version>
 		<junit.version>4.11</junit.version>
 	
