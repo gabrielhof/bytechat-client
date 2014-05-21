@@ -3,9 +3,16 @@ package br.feevale.bytechat.client.gui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.SwingUtilities;
+
 import org.apache.commons.lang.StringUtils;
 
+import br.feevale.bytechat.client.ChatClient;
+import br.feevale.bytechat.client.SimpleChatClient;
 import br.feevale.bytechat.client.listener.ShutdownWindowListener;
+import br.feevale.bytechat.config.Configuration;
+import br.feevale.bytechat.exception.PacketFailedException;
+import br.feevale.bytechat.util.User;
 
 import com.alee.extended.layout.TableLayout;
 import com.alee.extended.panel.CenterPanel;
@@ -71,17 +78,48 @@ public class LoginFrame extends WebFrame {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String username = usernameField.getText();
+			final String username = usernameField.getText();
 			if (StringUtils.isBlank(username)) {
 				WebOptionPane.showMessageDialog(LoginFrame.this, "Por favor, digite um usuário", "Aviso!", WebOptionPane.WARNING_MESSAGE);
 				return;
 			}
 			
-			boolean showLoad = !progressOverlay.isShowLoad();
-			progressOverlay.setShowLoad(showLoad);
+			progressOverlay.setShowLoad(true);
+			loginButton.setText("Logando...");
+			usernameField.setFocusable(false);
 			
-			loginButton.setText(showLoad ? "Logando..." : "Login");
-			usernameField.setFocusable(!showLoad);
+			SwingUtilities.invokeLater(new Runnable() {
+				
+				@Override
+				public void run() {
+					try {
+						Configuration configuration = new Configuration();
+						configuration.setHost("localhost");
+						configuration.setPort(8080);
+						
+						ChatClient client = new SimpleChatClient(configuration);
+						client.setUser(new User(username));
+						client.start();
+						
+						LoginFrame.this.setVisible(false);
+						ChatFrame frame = new ChatFrame(client);
+						frame.setVisible(true);
+						
+						return;
+					} catch (PacketFailedException ex) {
+						WebOptionPane.showMessageDialog(null, "Esse usuário já esta em uso, escolha outro :D", "Aviso!", WebOptionPane.INFORMATION_MESSAGE);
+					} catch (Exception ex) {
+						ex.printStackTrace();
+						WebOptionPane.showMessageDialog(null, "Não foi possível conectar no nosso servidor.", "Erro!", WebOptionPane.ERROR_MESSAGE);
+					}
+					
+					usernameField.setFocusable(true);
+					progressOverlay.setShowLoad(false);
+					loginButton.setText("Login");
+				}
+			});
+			
+			
 		}
 		
 	}
