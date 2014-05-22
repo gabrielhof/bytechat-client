@@ -76,11 +76,7 @@ public class ConsoleClientBootstrap {
 	}
 	
 	private Configuration createConfig() {
-		Configuration configuration = new Configuration();
-		configuration.setHost("localhost");
-		configuration.setPort(8080);
-
-		return configuration;
+		return Configuration.fromProperties();
 	}
 	
 	public static void main(String[] args) throws Exception {

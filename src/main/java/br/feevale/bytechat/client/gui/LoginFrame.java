@@ -93,9 +93,7 @@ public class LoginFrame extends WebFrame {
 				@Override
 				public void run() {
 					try {
-						Configuration configuration = new Configuration();
-						configuration.setHost("localhost");
-						configuration.setPort(8080);
+						Configuration configuration = Configuration.fromProperties();
 						
 						ChatClient client = new SimpleChatClient(configuration);
 						client.setUser(new User(username));
